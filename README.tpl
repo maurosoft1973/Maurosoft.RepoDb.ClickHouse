@@ -291,11 +291,21 @@ Pushes to `develop` therefore stop after **Pack NuGet** — you get a downloadab
 every commit without publishing anything permanent to nuget.org or cutting a release. Only `main`
 completes the last two jobs.
 
-To fork or self-host this pipeline, configure two repository secrets:
+**Publishing to NuGet.org uses [Trusted Publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing)
+(OIDC), not a long-lived API key.** The `Publish to NuGet.org` job exchanges a short-lived GitHub OIDC
+token for a temporary (1-hour) nuget.org API key at push time via [`NuGet/login`](https://github.com/NuGet/login),
+so there is no static secret to leak, rotate, or revoke.
+
+To fork or self-host this pipeline:
+
+1. On [nuget.org](https://www.nuget.org) → your profile → **Trusted Publishing**, add a policy pointing at
+   your fork: repository owner, repository name, and workflow file `ci.yml` (filename only, not the
+   `.github/workflows/` path).
+2. Configure two repository secrets:
 
 | Secret | Used by | Purpose |
 |---|---|---|
-| `NUGET_API_KEY` | Publish to NuGet.org | API key for the `Maurosoft.RepoDb.ClickHouse` package on nuget.org. |
+| `NUGET_USER` | Publish to NuGet.org | Your nuget.org profile name (**not** your email) — passed to `NuGet/login` to identify which trusted publishing policy applies. |
 | `CODECOV_TOKEN` | Unit Tests + Integration Tests | Upload token from [codecov.io](https://codecov.io) for this repository (recommended even for public repos, to avoid rate limiting). |
 
 ### Per-class coverage detail

@@ -39,14 +39,19 @@ if (Test-Path $testResultsDir) { Remove-Item $testResultsDir -Recurse -Force }
 
 Write-Host "Eseguo test con code coverage su: $target" -ForegroundColor Cyan
 
-# Collector XPlat produce coverage.cobertura.xml
-$collectArgs = @(
-    "--collect:XPlat Code Coverage"
-    "--logger:trx"
-    "-c:$Configuration"
-)
-
-dotnet test --solution $target $collectArgs
+# Il progetto di test usa il runner Microsoft Testing Platform (UseMicrosoftTestingPlatformRunner=true),
+# il cui front-end "dotnet test" non riconosce il collector VSTest classico "--collect:XPlat Code
+# Coverage" (fallisce silenziosamente con "Nessun test eseguito", exit 5): servono i flag nativi MTP
+# dopo "--", coerenti con quelli usati in .github/workflows/ci.yml.
+dotnet test `
+    --solution $target `
+    --configuration $Configuration `
+    -- `
+    --report-trx `
+    --coverage `
+    --coverage-output-format cobertura `
+    --coverage-output coverage.cobertura.xml `
+    --results-directory TestResults
 
 # Trova tutti i report Cobertura generati
 $reports = Get-ChildItem -Path . -Recurse -Filter "coverage.cobertura.xml" -File
