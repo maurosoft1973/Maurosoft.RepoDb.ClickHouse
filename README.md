@@ -315,16 +315,16 @@ not necessarily the latest commit on `develop`.
 
 |||
 |:---|:---|
-| Generated on: | 07/08/2026 - 14:48:23 |
+| Generated on: | 08/07/2026 - 14:03:19 |
 | Parser: | Cobertura |
 | Assemblies: | 1 |
 | Classes: | 20 |
 | Files: | 14 |
-| **Line coverage:** | 91.5% (562 of 614) |
-| Covered lines: | 562 |
-| Uncovered lines: | 52 |
-| Coverable lines: | 614 |
-| Total lines: | 2087 |
+| **Line coverage:** | 90.8% (557 of 613) |
+| Covered lines: | 557 |
+| Uncovered lines: | 56 |
+| Coverable lines: | 613 |
+| Total lines: | 2055 |
 | **Branch coverage:** | 78.7% (315 of 400) |
 | Covered branches: | 315 |
 | Total branches: | 400 |
@@ -333,31 +333,31 @@ not necessarily the latest commit on `develop`.
 </details>
 
 ## Coverage
-<details><summary>Maurosoft.RepoDb.ClickHouse - 91.5%</summary>
+<details><summary>Maurosoft.RepoDb.ClickHouse - 90.8%</summary>
 
 |**Name**|**Line**|**Branch**|
 |:---|---:|---:|
-|**Maurosoft.RepoDb.ClickHouse**|**91.5%**|**78.7%**|
+|**Maurosoft.RepoDb.ClickHouse**|**90.8%**|**78.7%**|
+|RepoDb.ClickHouse.Bulk.ClickHouseBulkInserter<TEntity>|96.8%|85.7%|
 |RepoDb.ClickHouse.Bulk.ClickHouseBulkInserter<TEntity>|100%|70%|
-|RepoDb.ClickHouse.Bulk.ClickHouseBulkInserter<TEntity>|97.8%|85.7%|
 |RepoDb.ClickHouse.Bulk.ClickHouseBulkInsertOptions|100%||
 |RepoDb.ClickHouse.Bulk.ClickHouseBulkInsertResult|100%|100%|
 |RepoDb.ClickHouse.Bulk.EntityFieldMapper.FieldBinding<TEntity>|100%||
-|RepoDb.ClickHouse.Bulk.EntityFieldMapper<TEntity>|90.6%|81.8%|
 |RepoDb.ClickHouse.Bulk.EntityFieldMapper<TEntity>|100%||
-|RepoDb.ClickHouse.Bulk<T>|97.1%|82.8%|
-|RepoDb.ClickHouse.ClickHouseBootstrap|92.8%|75%|
+|RepoDb.ClickHouse.Bulk.EntityFieldMapper<TEntity>|87.8%|81.8%|
+|RepoDb.ClickHouse.Bulk<T>|96%|82.8%|
+|RepoDb.ClickHouse.ClickHouseBootstrap|92.3%|75%|
 |RepoDb.ClickHouse.ClickHouseDbRepository|0%||
 |RepoDb.ClickHouse.ClickHouseParameterizedCommand|78.5%|95%|
 |RepoDb.ClickHouse.ClickHouseRepository<TEntity>|0%||
-|RepoDb.ClickHouse.DbHelpers.ClickHouseDbHelper|89.8%|79.1%|
+|RepoDb.ClickHouse.DbHelpers.ClickHouseDbHelper|91.1%|79.1%|
 |RepoDb.ClickHouse.DbHelpers.ClickHouseDbTypeNameToClientTypeResolver|100%|72.7%|
 |RepoDb.ClickHouse.DbSettings.ClickHouseDbSetting|100%||
 |RepoDb.ClickHouse.Extensions.ClickHouseBulkInsertExtensions|64.7%|100%|
 |RepoDb.ClickHouse.GlobalConfigurationExtension|100%||
-|RepoDb.ClickHouse.NoOpDbTransaction|75%||
+|RepoDb.ClickHouse.NoOpDbTransaction|71.4%||
 |RepoDb.ClickHouse.RepoDbClickHouseConnection|75%||
-|RepoDb.ClickHouse.StatementBuilders.ClickHouseStatementBuilder|91.6%|75%|
+|RepoDb.ClickHouse.StatementBuilders.ClickHouseStatementBuilder|89.5%|75%|
 
 </details>
 
