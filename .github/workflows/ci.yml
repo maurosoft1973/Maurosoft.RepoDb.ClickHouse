@@ -1,0 +1,264 @@
+name: Build, Test e Deploy RepoDb.ClickHouse
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  SOLUTION: Maurosoft.RepoDb.ClickHouse.sln
+  MAIN_PROJECT: src/Maurosoft.RepoDb.ClickHouse/Maurosoft.RepoDb.ClickHouse.csproj
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  # ─── JOB 1: Build ──────────────────────────────────────────────────────────
+  build:
+    name: 🔨 Build
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # Full history is required so Nerdbank.GitVersioning can compute the git height
+          # that feeds into the third version component (see version.json).
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Install Nerdbank.GitVersioning tool
+        run: dotnet tool install --global nbgv
+
+      - name: Determine package version
+        id: version
+        run: echo "version=$(nbgv get-version -v NuGetPackageVersion)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore
+        run: dotnet restore "$SOLUTION"
+
+      - name: Build
+        run: >
+          dotnet build "$SOLUTION"
+          --configuration Release
+          --no-restore
+          -p:Version=${{ steps.version.outputs.version }}
+
+  # ─── JOB 2: Unit Tests + Integration Tests (Testcontainers) ─────────────────
+  test:
+    name: 🧪 Unit Tests + Integration Tests (Testcontainers)
+    runs-on: ubuntu-latest
+    needs: build
+    # contents: write is only exercised by the "Commit updated README.md" step below, which itself
+    # is gated to push events on main.
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore "$SOLUTION"
+
+      # Integration tests use Testcontainers.ClickHouse, which pulls and runs a real
+      # ClickHouse container via the Docker daemon that ubuntu-latest runners ship with —
+      # no extra service container or Docker setup step is required.
+      #
+      # Coverage is collected via Microsoft.Testing.Extensions.CodeCoverage's own native flags
+      # (passed after "--"), not the classic VSTest "--collect:XPlat Code Coverage" switch: this
+      # test project runs on the Microsoft Testing Platform runner (UseMicrosoftTestingPlatformRunner),
+      # whose "dotnet test" front-end only understands its own "--coverage"/"--report-trx" options.
+      - name: Test with coverage
+        run: >
+          dotnet test
+          --solution "$SOLUTION"
+          --configuration Release
+          --no-restore
+          --
+          --report-trx
+          --coverage
+          --coverage-output-format cobertura
+          --coverage-output coverage.cobertura.xml
+          --results-directory TestResults
+
+      - name: Install ReportGenerator
+        if: always()
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      # Cobertura.xml is re-uploaded to Codecov for the README badge; MarkdownSummaryGithub is a
+      # per-class/per-assembly breakdown, rendered into the workflow run's summary page and — on
+      # main only — injected into README.md from README.tpl (see the two steps below).
+      - name: Generate coverage report
+        if: always()
+        run: >
+          reportgenerator
+          -reports:"TestResults/coverage.cobertura.xml"
+          -targetdir:"coveragereport"
+          -reporttypes:"Cobertura;MarkdownSummaryGithub;Badges"
+          -classfilters:"+RepoDb.ClickHouse.*"
+
+      - name: Publish coverage summary
+        if: always()
+        run: cat coveragereport/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coveragereport/Cobertura.xml
+          fail_ci_if_error: false
+
+      - name: Upload test results and coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: |
+            TestResults/**
+            coveragereport/**
+          retention-days: 14
+
+      # README.md is generated from README.tpl (see generate-readme.ps1's header comment for why);
+      # only main gets the regenerated file committed back, keeping develop free of bot commits.
+      - name: Regenerate README from template
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: ./generate-readme.ps1 -CoverageReportPath coveragereport/SummaryGithub.md
+
+      - name: Commit updated README.md
+        if: github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "docs: update coverage table in README [skip ci]"
+          file_pattern: README.md
+
+  # ─── JOB 3: Pack NuGet ───────────────────────────────────────────────────────
+  pack:
+    name: 📦 Pack NuGet v${{ needs.build.outputs.version }}
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore "$MAIN_PROJECT"
+
+      - name: Pack
+        run: >
+          dotnet pack "$MAIN_PROJECT"
+          --configuration Release
+          --no-restore
+          --output ./nupkg
+          -p:Version=${{ needs.build.outputs.version }}
+          -p:ContinuousIntegrationBuild=true
+
+      - name: Upload NuGet package artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: nuget-package
+          path: ./nupkg/*.nupkg
+          retention-days: 30
+
+  # ─── JOB 4: Publish to NuGet.org ─────────────────────────────────────────────
+  # Runs only on main: pushes to develop stop after Job 3, producing a downloadable
+  # artifact without publishing a public, permanent NuGet.org version.
+  publish:
+    name: 🚀 Publish to NuGet.org
+    runs-on: ubuntu-latest
+    needs: pack
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Download NuGet package artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-package
+          path: ./nupkg
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Push to NuGet.org
+        run: >
+          dotnet nuget push "./nupkg/*.nupkg"
+          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+  # ─── JOB 5: GitHub Release ───────────────────────────────────────────────────
+  # Runs only on main, after a successful publish to NuGet.org.
+  release:
+    name: 🏷️ GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build, publish]
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Download NuGet package artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-package
+          path: ./nupkg
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ needs.build.outputs.version }}
+          name: v${{ needs.build.outputs.version }}
+          generate_release_notes: true
+          files: ./nupkg/*.nupkg

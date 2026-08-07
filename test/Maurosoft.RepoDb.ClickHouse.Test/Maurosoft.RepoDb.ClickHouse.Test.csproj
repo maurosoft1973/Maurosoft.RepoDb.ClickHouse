@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <RootNamespace>RepoDb.ClickHouse.Test</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <OutputType>Exe</OutputType>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+        <!--
+          Without this the produced executable is the xUnit native in-process runner,
+          which only understands xUnit's own single-dash options: running it directly
+          (dotnet run, or the exe) rejects every Microsoft Testing Platform option
+          with an "unknown option" error, the coverage switch included. `dotnet test`
+          would still work, because the SDK drives coverage itself, so the breakage
+          only shows up outside it, which is exactly what happened to
+          test-coverage.ps1.
+         -->
+        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+        <!-- Tests may use patterns the analyzers discourage in a library -->
+        <NoWarn>$(NoWarn);CA1707;CA2007;CA1861</NoWarn>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <!--
+    xunit v3 runs on Microsoft Testing Platform: neither Microsoft.NET.Test.Sdk
+    nor xunit.runner.visualstudio is needed.
+    WireMock.Net is absent because the tests use StubHttpMessageHandler, which
+    exposes the exact headers and URL that end up on the wire.
+    Logging and DependencyInjection come in transitively from the DI project.
+  -->
+    <ItemGroup>
+        <PackageReference Include="FluentAssertions" />
+        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+        <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
+        <PackageReference Include="Shouldly" />
+        <PackageReference Include="Testcontainers.ClickHouse" />
+        <PackageReference Include="xunit.v3.mtp-v2" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\Maurosoft.RepoDb.ClickHouse\Maurosoft.RepoDb.ClickHouse.csproj" />
+    </ItemGroup>
+
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

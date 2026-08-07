@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>RepoDb.ClickHouse</RootNamespace>
+        <Authors>Mauro Cardillo</Authors>
+        <Company>Mauro Cardillo</Company>
+        <Copyright>Mauro Cardillo</Copyright>
+        <PackageId>Maurosoft.RepoDb.ClickHouse</PackageId>
+        <Product>Maurosoft.RepoDb.ClickHouse</Product>
+        <Title>Maurosoft.RepoDb.ClickHouse</Title>
+        <Description>RepoDb extension for ClickHouse, built on the official ClickHouse.Driver ADO.NET provider. Provides a ClickHouse-aware IDbSetting/IDbHelper/IStatementBuilder (backtick quoting, LIMIT/OFFSET pagination, ALTER TABLE mutations for UPDATE/DELETE, INSERT-based MERGE fallback), a RepoDbClickHouseConnection that transparently rewrites RepoDb's "@name" parameters into ClickHouse.Driver's native "{name:Type}" substitution syntax, and a native RowBinary bulk-insert path for high-throughput ingestion. Compatible with RepoDb 1.15.1+ and ClickHouse.Driver 1.3.0+.</Description>
+        <PackageTags>repodb;clickhouse;orm;ado.net;dotnet;sql;database;bulk-insert</PackageTags>
+        <PackageReleaseNotes>
+            Updated for RepoDb 1.15.1 and ClickHouse.Driver 1.3.0 compatibility:
+            - Added RepoDbClickHouseConnection, which rewrites RepoDb's ADO.NET "@name" parameters into ClickHouse.Driver's native "{name:Type}" substitution syntax before every execution (ClickHouse.Driver 1.3+ no longer understands "@name" at all).
+            - Added a no-op transaction (BeginTransaction) so RepoDb's implicit transactions around batch operations (InsertAllAsync, DeleteAllAsync, UpdateAllAsync) no longer fail against ClickHouse, which has no ACID transactions.
+            - Rewrote ClickHouseStatementBuilder for RepoDb 1.15.1's IStatementBuilder contract: correct LIMIT/OFFSET pagination, ALTER TABLE mutations for UPDATE/DELETE, INSERT-based MERGE/MERGE ALL fallback, and a single multi-VALUES INSERT ALL statement.
+            - Fixed schema introspection (system.columns) for ClickHouse.Driver 1.3's native parameter syntax and UInt8-to-byte column mapping.
+            - Added native RowBinary bulk insert (BulkInsertAsync) with streaming (IAsyncEnumerable) support, tunable batching/parallelism, and diagnostics.
+            - Removed ClickHouseConnectionExtensions: its convenience wrappers recursed into themselves and crashed with a StackOverflowException; RepoDb's own IDbConnection extensions are used directly instead.
+            - Full XML documentation across the public and internal API surface.
+            - Added a GitHub Actions CI/CD pipeline (build, unit + Testcontainers integration tests, NuGet pack/publish, GitHub Release) with Codecov coverage reporting.
+        </PackageReleaseNotes>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/maurosoft1973/maurosoft-repodb-clickhouse</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/maurosoft1973/maurosoft-repodb-clickhouse.git</RepositoryUrl>
+        <RepositoryBranch>main</RepositoryBranch>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\..\LICENSE.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\..\icon.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="ClickHouse.Driver" />
+      <PackageReference Include="RepoDb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+        <_Parameter1>Maurosoft.RepoDb.ClickHouse.Test</_Parameter1>
+      </AssemblyAttribute>
+    </ItemGroup>
+</Project>

@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36401.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementi di soluzione", "Elementi di soluzione", "{9DF70304-0A22-CE1E-AA12-D5904EE55694}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		global.json = global.json
+		nuget.config = nuget.config
+		README.md = README.md
+		test-coverage.ps1 = test-coverage.ps1
+		test-coverage.sh = test-coverage.sh
+		version.json = version.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6C83A596-D32D-B35F-00DD-F0C99B673980}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D0DCD77A-ADA9-4447-9469-01C26C25794B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{947EA509-95CB-4EBB-B558-FDDA049BF302}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{47816D64-8978-4DBA-9710-C5A00CDDC8D9}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maurosoft.RepoDb.ClickHouse.Test", "test\Maurosoft.RepoDb.ClickHouse.Test\Maurosoft.RepoDb.ClickHouse.Test.csproj", "{56AEB18B-2A8F-40DD-458A-FF3B696FF5EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maurosoft.RepoDb.ClickHouse", "src\Maurosoft.RepoDb.ClickHouse\Maurosoft.RepoDb.ClickHouse.csproj", "{ABD340F2-0114-E2E9-3B2D-596240B8028C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56AEB18B-2A8F-40DD-458A-FF3B696FF5EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56AEB18B-2A8F-40DD-458A-FF3B696FF5EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56AEB18B-2A8F-40DD-458A-FF3B696FF5EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56AEB18B-2A8F-40DD-458A-FF3B696FF5EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABD340F2-0114-E2E9-3B2D-596240B8028C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABD340F2-0114-E2E9-3B2D-596240B8028C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABD340F2-0114-E2E9-3B2D-596240B8028C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABD340F2-0114-E2E9-3B2D-596240B8028C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{947EA509-95CB-4EBB-B558-FDDA049BF302} = {9DF70304-0A22-CE1E-AA12-D5904EE55694}
+		{47816D64-8978-4DBA-9710-C5A00CDDC8D9} = {947EA509-95CB-4EBB-B558-FDDA049BF302}
+		{56AEB18B-2A8F-40DD-458A-FF3B696FF5EC} = {D0DCD77A-ADA9-4447-9469-01C26C25794B}
+		{ABD340F2-0114-E2E9-3B2D-596240B8028C} = {6C83A596-D32D-B35F-00DD-F0C99B673980}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1B772B82-297C-4032-92B1-C9C622A104C2}
+	EndGlobalSection
+EndGlobal
