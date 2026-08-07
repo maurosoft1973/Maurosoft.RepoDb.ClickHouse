@@ -324,7 +324,7 @@ not necessarily the latest commit on `develop`.
 
 |||
 |:---|:---|
-| Generated on: | 08/07/2026 - 14:44:43 |
+| Generated on: | 08/07/2026 - 15:28:30 |
 | Parser: | Cobertura |
 | Assemblies: | 1 |
 | Classes: | 20 |
