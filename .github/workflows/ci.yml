@@ -218,6 +218,9 @@ jobs:
     needs: pack
     if: github.ref == 'refs/heads/main'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
       - name: Download NuGet package artifact
         uses: actions/download-artifact@v8
         with:
