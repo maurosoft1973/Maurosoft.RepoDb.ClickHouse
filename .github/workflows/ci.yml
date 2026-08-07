@@ -217,6 +217,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: pack
     if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write  # required to request the GitHub OIDC token for NuGet Trusted Publishing
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -232,10 +234,19 @@ jobs:
         with:
           global-json-file: global.json
 
+      # Exchanges the GitHub OIDC token for a short-lived (1 hour) NuGet.org API key,
+      # per the trusted publishing policy configured on nuget.org for this repository/workflow.
+      # No long-lived NUGET_API_KEY secret is needed.
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: nuget_login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Push to NuGet.org
         run: >
           dotnet nuget push "./nupkg/*.nupkg"
-          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}"
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
 
