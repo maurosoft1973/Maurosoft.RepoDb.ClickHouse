@@ -28,8 +28,16 @@
 
 .PARAMETER CoverageReportPath
     Path to a ReportGenerator "MarkdownSummaryGithub" report (typically CoverageReport/SummaryGithub.md
-    or coveragereport/SummaryGithub.md). When the file does not exist, a placeholder notice is
-    inserted instead of failing, so the script remains safe to run before any coverage data exists.
+    or coveragereport/SummaryGithub.md). When the file does not exist, the script falls back to
+    whatever coverage content is already present between the markers in -OutputPath (so a
+    template-only regeneration, run without ever executing the test suite, does not blow away the
+    last real coverage table). Only when neither a fresh report nor a previously generated
+    -OutputPath exists does it fall back to a placeholder notice.
+
+    ReportGenerator wraps each section in collapsible "<details><summary>...</summary>...</details>"
+    tags, meant for its own standalone report output. Rendered inline in a README they add clutter
+    without adding anything a reader needs, so this script strips those tags (but keeps their
+    content) before injecting the report.
 
 .EXAMPLE
     pwsh ./generate-readme.ps1
@@ -60,9 +68,39 @@ if ($template -notlike "*$startMarker*" -or $template -notlike "*$endMarker*") {
     throw "README.tpl must contain both '$startMarker' and '$endMarker' markers exactly once."
 }
 
+# Strips ReportGenerator's "<details><summary>...</summary>" / "</details>" wrapper lines while
+# keeping everything they wrap, so the report renders as plain, always-expanded Markdown in the README.
+function Remove-DetailsTags {
+    param([string]$Text)
+
+    $lines = $Text -split "`r?`n" | Where-Object {
+        $_ -notmatch '<details\b' -and $_.Trim() -ne '</details>'
+    }
+    $joined = ($lines -join "`n").Trim()
+
+    # Removing a tag line can leave a run of blank lines where it used to sit; collapse those
+    # down to the single blank line Markdown needs to separate blocks.
+    return $joined -replace '(\r?\n){3,}', "`n`n"
+}
+
+$existingCoverageContent = $null
+if (Test-Path $OutputPath) {
+    $existingOutput = Get-Content -Path $OutputPath -Raw
+    $existingMatch = [regex]::Match(
+        $existingOutput,
+        [regex]::Escape($startMarker) + "(?s)(.*?)" + [regex]::Escape($endMarker))
+    if ($existingMatch.Success) {
+        $existingCoverageContent = Remove-DetailsTags $existingMatch.Groups[1].Value
+    }
+}
+
 if (Test-Path $CoverageReportPath) {
-    $coverageContent = (Get-Content -Path $CoverageReportPath -Raw).Trim()
+    $coverageContent = Remove-DetailsTags (Get-Content -Path $CoverageReportPath -Raw)
     Write-Host "Injecting coverage table from: $CoverageReportPath" -ForegroundColor Green
+}
+elseif ($existingCoverageContent) {
+    $coverageContent = $existingCoverageContent
+    Write-Host "Coverage report not found at '$CoverageReportPath' - preserving existing coverage table from $OutputPath." -ForegroundColor Yellow
 }
 else {
     $coverageContent = "_Coverage table not available for this build. Run the test suite with " + `

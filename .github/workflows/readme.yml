@@ -1,0 +1,41 @@
+name: Regenerate README
+
+# Lightweight companion to ci.yml: regenerates README.md from README.tpl whenever the template
+# itself changes (e.g. fixing a badge, editing prose), without rebuilding, re-testing, re-packing,
+# or (on main) re-publishing/re-releasing the whole package. Coverage-driven regeneration after a
+# real test run still happens inside ci.yml's "test" job; this workflow never runs the test suite,
+# so generate-readme.ps1 falls back to preserving whatever coverage table is already committed in
+# README.md (see its -CoverageReportPath parameter doc) rather than overwriting it with a placeholder.
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - README.tpl
+
+concurrency:
+  group: readme-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    name: 📝 Regenerate README
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Regenerate README from template
+        shell: pwsh
+        run: ./generate-readme.ps1
+
+      - name: Commit updated README.md
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "docs: regenerate README from template [skip ci]"
+          file_pattern: README.md

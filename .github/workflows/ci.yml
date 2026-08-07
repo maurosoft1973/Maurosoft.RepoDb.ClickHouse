@@ -5,6 +5,12 @@ on:
     branches:
       - main
       - develop
+    # A push touching only README.tpl/README.md is a docs-only change: it's handled by the
+    # lightweight readme.yml workflow instead, so it doesn't need to rebuild, re-test, re-pack,
+    # and (on main) re-publish/re-release the whole package.
+    paths-ignore:
+      - README.tpl
+      - README.md
 
 concurrency:
   group: ci-${{ github.ref }}

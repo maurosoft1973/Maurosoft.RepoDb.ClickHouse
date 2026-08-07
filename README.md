@@ -16,9 +16,9 @@
 
 [![NuGet Version](https://img.shields.io/nuget/v/Maurosoft.RepoDb.ClickHouse.svg?logo=nuget)](https://www.nuget.org/packages/Maurosoft.RepoDb.ClickHouse/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Maurosoft.RepoDb.ClickHouse.svg?logo=nuget)](https://www.nuget.org/packages/Maurosoft.RepoDb.ClickHouse/)
-[![Build](https://github.com/maurosoft1973/maurosoft-repodb-clickhouse/actions/workflows/ci.yml/badge.svg)](https://github.com/maurosoft1973/maurosoft-repodb-clickhouse/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/maurosoft1973/maurosoft-repodb-clickhouse/branch/main/graph/badge.svg)](https://codecov.io/gh/maurosoft1973/maurosoft-repodb-clickhouse)
-[![License: MIT](https://img.shields.io/github/license/maurosoft1973/maurosoft-repodb-clickhouse)](LICENSE.md)
+[![Build](https://github.com/maurosoft1973/Maurosoft.RepoDb.ClickHouse/actions/workflows/ci.yml/badge.svg)](https://github.com/maurosoft1973/Maurosoft.RepoDb.ClickHouse/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/maurosoft1973/Maurosoft.RepoDb.ClickHouse/branch/main/graph/badge.svg)](https://codecov.io/gh/maurosoft1973/Maurosoft.RepoDb.ClickHouse)
+[![License: MIT](https://img.shields.io/github/license/maurosoft1973/Maurosoft.RepoDb.ClickHouse)](LICENSE.md)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 
 A [RepoDb](https://repodb.net) extension that adds first-class [ClickHouse](https://clickhouse.com/) support, built on top of the official ADO.NET provider, [`ClickHouse.Driver`](https://github.com/ClickHouse/clickhouse-cs).
@@ -311,7 +311,6 @@ not necessarily the latest commit on `develop`.
 <!-- COVERAGE:START -->
 
 # Summary
-<details open><summary>Summary</summary>
 
 |||
 |:---|:---|
@@ -330,10 +329,7 @@ not necessarily the latest commit on `develop`.
 | Total branches: | 400 |
 | **Method coverage:** | [Feature is only available for sponsors](https://reportgenerator.io/pro) |
 
-</details>
-
 ## Coverage
-<details><summary>Maurosoft.RepoDb.ClickHouse - 90.8%</summary>
 
 |**Name**|**Line**|**Branch**|
 |:---|---:|---:|
@@ -358,8 +354,6 @@ not necessarily the latest commit on `develop`.
 |RepoDb.ClickHouse.NoOpDbTransaction|71.4%||
 |RepoDb.ClickHouse.RepoDbClickHouseConnection|75%||
 |RepoDb.ClickHouse.StatementBuilders.ClickHouseStatementBuilder|89.5%|75%|
-
-</details>
 
 <!-- COVERAGE:END -->
 
